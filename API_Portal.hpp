@@ -9,6 +9,7 @@
 //   - Renderer      : Swift/Metal on macOS; Vulkan on other platforms
 //   - Rectangle     : widget with top-left origin, color, click response,
 //                     linear/cubic-Bezier animation, and optional backdrop blur
+//   - ViewSpace     : non-overlapping horizontal/vertical component containers
 //   - TextLabel      : baseline-positioned label rendered from the dedicated
 //                     FreeType glyph texture array; optional backdrop blur
 //
@@ -18,4 +19,5 @@
 #include "Window.hpp"
 #include "Rectangle.hpp"
 #include "Text.hpp"
+#include "View.hpp"
 #include "Renderer.hpp"

@@ -15,6 +15,7 @@
 #include "Rectangle.hpp"
 #include "Texture.hpp"
 #include "Text.hpp"
+#include "View.hpp"
 
 #include <iostream>
 #include <memory>
@@ -151,6 +152,36 @@ int main() {
                                   80.0f, 430.0f,
                                   3.0f, 0))
         std::cerr << "Demo: failed to start Bezier rectangle animation\n";
+
+    ViewSpace viewSpace;
+    Rectangle verticalViewRectangle(
+        0.0f, 0.0f, 180.0f, 55.0f, {0.25f, 0.55f, 0.85f, 1.0f});
+    TextLabel verticalViewLabel{"VIEW", 0.0f, 0.0f, 0.5f,
+                                {1.0f, 1.0f, 1.0f, 1.0f}};
+    Rectangle horizontalViewFirst(
+        0.0f, 0.0f, 160.0f, 55.0f, {0.35f, 0.65f, 0.95f, 1.0f});
+    Rectangle horizontalViewSecond(
+        0.0f, 0.0f, 220.0f, 55.0f, {0.25f, 0.5f, 0.8f, 1.0f});
+
+    auto verticalView = viewSpace.createVerticalView(520.0f, 90.0f, 220.0f, 190.0f);
+    auto horizontalView =
+        viewSpace.createHorizontalView(230.0f, 500.0f, 520.0f, 75.0f);
+    if (!verticalView || !horizontalView) {
+        std::cerr << "Demo: failed to create non-overlapping views\n";
+    } else {
+        const auto rectangleAdded = (*verticalView)->add(verticalViewRectangle);
+        const auto labelAdded = (*verticalView)->add(verticalViewLabel, 180.0f, 50.0f);
+        const auto firstAdded = (*horizontalView)->add(horizontalViewFirst);
+        const auto secondAdded = (*horizontalView)->add(horizontalViewSecond);
+        if (!rectangleAdded || !labelAdded || !firstAdded || !secondAdded) {
+            std::cerr << "Demo: a view component did not fit its container\n";
+        } else {
+            renderer.addRectangle(&verticalViewRectangle);
+            renderer.addText(&verticalViewLabel);
+            renderer.addRectangle(&horizontalViewFirst);
+            renderer.addRectangle(&horizontalViewSecond);
+        }
+    }
 
     // The renderer stores non-owning pointers; rects must outlive renderer.
     for (auto& r : rects)

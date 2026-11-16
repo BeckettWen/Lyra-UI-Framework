@@ -109,6 +109,19 @@ part of the active build.
   `onClick` response once; other buttons/actions and outside clicks are ignored.
 - The demo animates a blue rectangle with a repeating cubic Bezier path.
 
+### Views (Phase 6)
+- `ViewSpace` creates horizontal (row) and vertical (column) containers.
+- On macOS, Swift owns the view-space map and performs overlap checks and
+  child layout; the C++ API bridge reports failures as
+  `std::unexpected(ViewError::Overlap)`. Other platforms use the C++ fallback.
+  Touching view edges are allowed.
+- Views can add/remove `Rectangle` and `TextLabel` components. Rectangles use
+  their own dimensions; text labels provide layout dimensions in logical
+  pixels. Components are placed in insertion order and rejected if they do not
+  fit.
+- The view/layout API is shared. On macOS, Swift computes positions and the
+  existing Swift/Metal renderer draws the resulting rectangle and text.
+
 ## Repository layout
 
 ```
@@ -131,6 +144,8 @@ Animation.hpp / Animation.cpp  # linear and cubic Bezier position animation
 Version.hpp                    # required canonical project/version metadata
 Window.hpp / Window.cpp        # GLFW native window, input and resize events
 Rectangle.hpp / Rectangle.cpp  # rectangle widget + UVs + textureLayer + click
+View.hpp / View.cpp            # horizontal/vertical view containers and layout
+ViewLayout.swift               # macOS Swift view-space and layout engine
 VulkanRenderer.hpp / VulkanRenderer.cpp  # Vulkan device/swapchain/pipeline/descriptors/batching
 MetalRenderer.hpp/.mm          # Objective-C++ Lyra API adapter and Cocoa bridge
 MetalRenderer.swift            # Swift Metal renderer and GPU command encoding
@@ -143,6 +158,7 @@ README.md                      # this file
 tests/TextAtlasTest.cpp        # CPU-side glyph atlas smoke test
 tests/AnimationTest.cpp        # preset and repeat-count tests
 tests/MouseDispatchTest.cpp    # topmost click dispatch test
+tests/ViewLayoutTest.cpp       # view overlap, layout, and component management
 ```
 
 ## Version metadata
@@ -260,9 +276,10 @@ nothing. The animated blue rectangle uses the repeating Bezier preset.
 | GLFW mouse capture and rectangle click dispatch | ✅ Implemented |
 | Optional in-app Gaussian backdrop blur for rectangles and text | ✅ Implemented |
 | Optional macOS system window backdrop blur | ✅ Implemented (opt-in build) |
+| Horizontal / vertical views with collision-safe layout | ✅ Implemented (Phase 6) |
 | Borders / advanced styling | ⏳ Deferred |
 | PNG/JPEG decoding | ⏳ Deferred (PPM P6 only) |
-| Multi-window / layout system / multithreading | ⏳ Deferred |
+| Multi-window / multithreading | ⏳ Deferred |
 | Legacy OpenGL sources | ⏳ Superseded (retained on disk, not built) |
 
 ## Supported texture format

@@ -105,6 +105,8 @@ set(LYRA_COMMON_SOURCES
     Animation.cpp
     Rectangle.hpp
     Rectangle.cpp
+    View.hpp
+    View.cpp
     Text.hpp
     Text.cpp
     Texture.hpp
@@ -116,7 +118,8 @@ if(LYRA_USE_METAL)
         Renderer.hpp
         MetalRenderer.hpp
         MetalRenderer.mm
-        MetalRenderer.swift)
+        MetalRenderer.swift
+        ViewLayout.swift)
     add_dependencies(x19 lyra_metal_shaders)
     target_compile_definitions(x19 PRIVATE
         LYRA_USE_METAL=1
@@ -229,4 +232,17 @@ if(BUILD_TESTING)
     )
     target_include_directories(animation_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
     add_test(NAME animation_presets COMMAND animation_test)
+
+    add_executable(view_layout_test
+        Animation.cpp
+        Rectangle.cpp
+        View.cpp
+        tests/ViewLayoutTest.cpp
+    )
+    target_include_directories(view_layout_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    if(APPLE)
+        target_sources(view_layout_test PRIVATE ViewLayout.swift)
+        target_compile_definitions(view_layout_test PRIVATE LYRA_USE_METAL=1)
+    endif()
+    add_test(NAME view_layout COMMAND view_layout_test)
 endif()
