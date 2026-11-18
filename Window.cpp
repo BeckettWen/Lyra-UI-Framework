@@ -21,6 +21,8 @@ bool Window::create(int width, int height, const char* title) {
     glfwSetWindowUserPointer(m_window, this);
     glfwSetFramebufferSizeCallback(m_window, onFramebufferResize);
     glfwSetMouseButtonCallback(m_window, onMouseButton);
+    glfwSetCharCallback(m_window, onChar);
+    glfwSetKeyCallback(m_window, onKey);
 
     glfwGetWindowSize(m_window, &m_width, &m_height);
     glfwGetFramebufferSize(m_window, &m_fbWidth, &m_fbHeight);
@@ -53,6 +55,14 @@ void Window::setMouseButtonCallback(MouseButtonCallback cb) {
     m_mouseButtonCb = std::move(cb);
 }
 
+void Window::setCharCallback(CharCallback cb) {
+    m_charCb = std::move(cb);
+}
+
+void Window::setKeyCallback(KeyCallback cb) {
+    m_keyCb = std::move(cb);
+}
+
 void Window::onFramebufferResize(GLFWwindow* win, int w, int h) {
     Window* self = static_cast<Window*>(glfwGetWindowUserPointer(win));
     if (!self) return;
@@ -71,4 +81,17 @@ void Window::onMouseButton(GLFWwindow* win, int button, int action, int mods) {
     double y = 0.0;
     glfwGetCursorPos(win, &x, &y);
     self->m_mouseButtonCb(button, action, mods, x, y);
+}
+
+void Window::onChar(GLFWwindow* win, unsigned int codepoint) {
+    Window* self = static_cast<Window*>(glfwGetWindowUserPointer(win));
+    if (!self || !self->m_charCb) return;
+    self->m_charCb(codepoint);
+}
+
+void Window::onKey(GLFWwindow* win, int key, int scancode,
+                   int action, int mods) {
+    Window* self = static_cast<Window*>(glfwGetWindowUserPointer(win));
+    if (!self || !self->m_keyCb) return;
+    self->m_keyCb(key, scancode, action, mods);
 }

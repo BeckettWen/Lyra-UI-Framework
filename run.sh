@@ -1,5 +1,8 @@
 #!/bin/sh
 # Configure, build, and launch Lyra with the native renderer for this platform.
+# Visual examples:
+#   ./run.sh --textboxes   # show one or two interactive text-box widgets
+#   ./run.sh --blur-demo   # highlight the existing backdrop-blur showcase
 set -eu
 
 PROJECT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)

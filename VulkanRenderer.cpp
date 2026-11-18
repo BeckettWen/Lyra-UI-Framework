@@ -1,6 +1,7 @@
 #include "VulkanRenderer.hpp"
 #include "Texture.hpp"
 #include "Rectangle.hpp"
+#include "TextBox.hpp"
 #include "Version.hpp"
 
 #include <cstring>
@@ -2434,10 +2435,63 @@ void VulkanRenderer::removeText(TextLabel* text) {
         m_textLabels.end());
 }
 
+int VulkanRenderer::addTextBox(TextBox* textBox) {
+    if (!textBox) return -1;
+    textBox->refresh();
+    m_textBoxes.push_back(textBox);
+    for (Rectangle& part : textBox->outline)
+        addRectangle(&part);
+    addText(&textBox->label);
+    return static_cast<int>(m_textBoxes.size()) - 1;
+}
+
+void VulkanRenderer::removeTextBox(TextBox* textBox) {
+    if (!textBox) return;
+    for (Rectangle& part : textBox->outline)
+        removeRectangle(&part);
+    removeText(&textBox->label);
+    m_textBoxes.erase(
+        std::remove(m_textBoxes.begin(), m_textBoxes.end(), textBox),
+        m_textBoxes.end());
+}
+
+void VulkanRenderer::dispatchChar(unsigned int codepoint) {
+    for (TextBox* textBox : m_textBoxes) {
+        if (textBox && textBox->focused()) {
+            textBox->appendCodepoint(codepoint);
+            return;
+        }
+    }
+}
+
+void VulkanRenderer::dispatchKey(int key, int scancode, int action, int mods) {
+    (void)scancode;
+    (void)mods;
+    if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
+    if (key != GLFW_KEY_BACKSPACE) return;
+
+    for (TextBox* textBox : m_textBoxes) {
+        if (textBox && textBox->focused()) {
+            textBox->backspace();
+            return;
+        }
+    }
+}
+
 void VulkanRenderer::dispatchMouseButton(int button, int action, int mods,
                                          double cursorX, double cursorY) {
     (void)mods;
     if (button != GLFW_MOUSE_BUTTON_LEFT || action != GLFW_PRESS) return;
+
+    TextBox* hitTextBox = nullptr;
+    for (auto it = m_textBoxes.rbegin(); it != m_textBoxes.rend(); ++it) {
+        if (*it && (*it)->contains(cursorX, cursorY)) {
+            hitTextBox = *it;
+            break;
+        }
+    }
+    for (TextBox* textBox : m_textBoxes)
+        if (textBox) textBox->setFocused(textBox == hitTextBox);
 
     std::function<void()> response;
     for (auto it = m_rectangles.rbegin(); it != m_rectangles.rend(); ++it) {

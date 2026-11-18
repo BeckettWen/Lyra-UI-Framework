@@ -26,4 +26,4 @@ cmake --build "$BUILD_DIR" --config Debug --target x19 -- -quiet
 
 echo "Launching macOS backdrop test. Metal blurs Lyra widget backdrops; AppKit blurs the desktop behind the window."
 echo "If system blur is supported, content behind the window should show through transparent areas."
-exec "$BUILD_DIR/Debug/x19" "$@"
+exec "$BUILD_DIR/Debug/x19" --blur-demo "$@"

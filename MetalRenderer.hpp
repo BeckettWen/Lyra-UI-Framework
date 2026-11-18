@@ -10,6 +10,7 @@
 #include <vector>
 
 class Rectangle;
+class TextBox;
 
 // macOS renderer API adapter. Its Objective-C++ implementation bridges the
 // shared Lyra widget/input model to the Swift/Metal rendering core.
@@ -28,6 +29,10 @@ public:
     bool uploadTextures();
     int addText(TextLabel* text);
     void removeText(TextLabel* text);
+    int addTextBox(TextBox* textBox);
+    void removeTextBox(TextBox* textBox);
+    void dispatchChar(unsigned int codepoint);
+    void dispatchKey(int key, int scancode, int action, int mods);
     void dispatchMouseButton(int button, int action, int mods,
                              double cursorX, double cursorY);
     bool drawFrame();
@@ -56,6 +61,7 @@ private:
     bool m_texturesUploaded = false;
     std::vector<TextureRecord> m_textures;
     std::vector<Rectangle*> m_rectangles;
+    std::vector<TextBox*> m_textBoxes;
     std::vector<TextLabel*> m_textLabels;
     FontAtlas m_fontAtlas;
     std::vector<float> m_rectangleVertices;

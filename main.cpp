@@ -15,6 +15,7 @@
 #include "Rectangle.hpp"
 #include "Texture.hpp"
 #include "Text.hpp"
+#include "TextBox.hpp"
 #include "View.hpp"
 
 #include <iostream>
@@ -25,9 +26,23 @@
 #define SHADER_PATH "Shaders"
 #endif
 
-int main() {
+int main(int argc, char** argv) {
+    bool textboxDemo = false;
+    bool blurDemo = false;
+    for (int i = 1; i < argc; ++i) {
+        const std::string argument = argv[i];
+        if (argument == "--textboxes" || argument == "--textbox-demo")
+            textboxDemo = true;
+        if (argument == "--blur-demo")
+            blurDemo = true;
+    }
+
     std::cout << lyra::version::projectName << " " << lyra::version::string
               << " (" << lyra::version::codename << ")\n";
+    if (textboxDemo)
+        std::cout << "Demo: click a text box, type text, or press Backspace.\n";
+    if (blurDemo)
+        std::cout << "Demo: translucent components and text demonstrate backdrop blur.\n";
     if (!glfwInit()) {
         std::cerr << "Demo: failed to initialize GLFW\n";
         return 1;
@@ -63,6 +78,14 @@ int main() {
     window.setMouseButtonCallback(
         [&renderer](int button, int action, int mods, double x, double y) {
             renderer.dispatchMouseButton(button, action, mods, x, y);
+        });
+    window.setCharCallback(
+        [&renderer](unsigned int codepoint) {
+            renderer.dispatchChar(codepoint);
+        });
+    window.setKeyCallback(
+        [&renderer](int key, int scancode, int action, int mods) {
+            renderer.dispatchKey(key, scancode, action, mods);
         });
 
     // --- Load textures from project assets (PPM P6) ---
@@ -187,11 +210,20 @@ int main() {
     for (auto& r : rects)
         renderer.addRectangle(&r);
 
+    TextBox textBox(280.0f, 55.0f, 260.0f, 44.0f);
+    TextBox searchBox(280.0f, 105.0f, 260.0f, 44.0f);
+    textBox.setText("");
+    textBox.setMaxCharacters(64);
+    searchBox.setText("Type here");
+    searchBox.setMaxCharacters(64);
+    renderer.addTextBox(&textBox);
+    renderer.addTextBox(&searchBox);
+
     // Text uses an independent glyph texture array, descriptor set, pipeline,
     // and vertex/index batch. Coordinates are top-left-origin; y is the font
     // baseline in logical window pixels.
     std::vector<TextLabel> labels;
-    labels.reserve(4);
+    labels.reserve(6);
     labels.push_back({"Cloudsdale", 50.0f, 95.0f, 0.8f,
                       {1.0f, 1.0f, 1.0f, 1.0f}, true});
     labels.push_back({"LYRA", 65.0f, 215.0f, 0.42f,
@@ -202,6 +234,10 @@ int main() {
     labels.back().backdropBlurRadius = 5.0f;
     labels.push_back({"SHADED", 545.0f, 390.0f, 0.5f,
                       {1.0f, 1.0f, 1.0f, 1.0f}, true});
+    labels.push_back({"TEXT", 180.0f, 88.0f, 0.28f,
+                      {0.85f, 0.85f, 0.85f, 1.0f}, true});
+    labels.push_back({"SEARCH", 160.0f, 138.0f, 0.28f,
+                      {0.85f, 0.85f, 0.85f, 1.0f}, true});
     for (auto& label : labels)
         renderer.addText(&label);
 

@@ -109,6 +109,8 @@ set(LYRA_COMMON_SOURCES
     View.cpp
     Text.hpp
     Text.cpp
+    TextBox.hpp
+    TextBox.cpp
     Texture.hpp
     Texture.cpp
 )
@@ -232,6 +234,16 @@ if(BUILD_TESTING)
     )
     target_include_directories(animation_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
     add_test(NAME animation_presets COMMAND animation_test)
+
+    add_executable(textbox_test
+        Rectangle.cpp
+        TextBox.cpp
+        TextBox.hpp
+        Animation.cpp
+        tests/TextBoxTest.cpp
+    )
+    target_include_directories(textbox_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    add_test(NAME textbox COMMAND textbox_test)
 
     add_executable(view_layout_test
         Animation.cpp

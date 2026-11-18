@@ -10,6 +10,7 @@
 #include <chrono>
 
 class Rectangle;
+class TextBox;
 class TextureManager;
 #include "Texture.hpp"
 #include "Text.hpp"
@@ -70,6 +71,13 @@ public:
     // logical-pixel baseline and are rendered after rectangles.
     int addText(TextLabel* text);
     void removeText(TextLabel* text);
+
+    // Text boxes add their four outline rectangles and text label to the
+    // existing rectangle/text batches.
+    int addTextBox(TextBox* textBox);
+    void removeTextBox(TextBox* textBox);
+    void dispatchChar(unsigned int codepoint);
+    void dispatchKey(int key, int scancode, int action, int mods);
 
     // Dispatch a GLFW mouse event to the topmost enabled rectangle under the
     // cursor. Only a left-button press invokes onClick.
@@ -277,6 +285,7 @@ private:
 
     // rectangles: non-owning pointers; order = draw order (last = topmost)
     std::vector<Rectangle*> m_rectangles;
+    std::vector<TextBox*> m_textBoxes;
     static constexpr size_t MAX_RECTANGLES = 64;
 
     // texture manager (renderer-owned)

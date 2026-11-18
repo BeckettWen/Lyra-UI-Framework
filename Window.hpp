@@ -44,9 +44,19 @@ public:
         std::function<void(int button, int action, int mods, double x, double y)>;
     void setMouseButtonCallback(MouseButtonCallback cb);
 
+    // Printable Unicode input and editing keys.
+    using CharCallback = std::function<void(unsigned int codepoint)>;
+    void setCharCallback(CharCallback cb);
+    using KeyCallback =
+        std::function<void(int key, int scancode, int action, int mods)>;
+    void setKeyCallback(KeyCallback cb);
+
 private:
     static void onFramebufferResize(GLFWwindow* win, int w, int h);
     static void onMouseButton(GLFWwindow* win, int button, int action, int mods);
+    static void onChar(GLFWwindow* win, unsigned int codepoint);
+    static void onKey(GLFWwindow* win, int key, int scancode,
+                      int action, int mods);
 
     GLFWwindow* m_window = nullptr;
     int m_width = 0, m_height = 0;
@@ -54,4 +64,6 @@ private:
     bool m_resized = false;
     ResizeCallback m_resizeCb;
     MouseButtonCallback m_mouseButtonCb;
+    CharCallback m_charCb;
+    KeyCallback m_keyCb;
 };

@@ -2,6 +2,8 @@
 
 ### First version: Cloudsdale
 
+**Update Cloudsdale 8, Structure design by Beckett Wen, implementation by MAI Code 2 Flash**
+
 Experimental UI framework with a platform-native rendering backend: Swift/Metal
 on macOS and Vulkan on other platforms. The framework retains the same
 rectangle, texture, text, animation, and input model across backends. Phase 1
@@ -122,6 +124,29 @@ part of the active build.
 - The view/layout API is shared. On macOS, Swift computes positions and the
   existing Swift/Metal renderer draws the resulting rectangle and text.
 
+### Text boxes (Phase 7)
+- `TextBox` provides a focused text-entry widget with a four-rectangle outline
+  and a shared text label.
+- The four outline rectangles are registered in the existing rectangle batch.
+- Mouse clicks focus the topmost text box under the cursor.
+- GLFW character and key callbacks feed printable text input and backspace editing
+  to the focused text box.
+- `get_textbox_value()` returns the live `std::vector<char>` value.
+
+```cpp
+TextBox textBox(280.0f, 55.0f, 260.0f, 44.0f);
+textBox.setMaxCharacters(64);
+renderer.addTextBox(&textBox);
+
+window.setCharCallback([&renderer](unsigned int codepoint) {
+    renderer.dispatchChar(codepoint);
+});
+window.setKeyCallback([&renderer](int key, int scancode,
+                                 int action, int mods) {
+    renderer.dispatchKey(key, scancode, action, mods);
+});
+```
+
 ## Repository layout
 
 ```
@@ -146,6 +171,7 @@ Window.hpp / Window.cpp        # GLFW native window, input and resize events
 Rectangle.hpp / Rectangle.cpp  # rectangle widget + UVs + textureLayer + click
 View.hpp / View.cpp            # horizontal/vertical view containers and layout
 ViewLayout.swift               # macOS Swift view-space and layout engine
+TextBox.hpp / TextBox.cpp      # text-entry outline, focus, and live value
 VulkanRenderer.hpp / VulkanRenderer.cpp  # Vulkan device/swapchain/pipeline/descriptors/batching
 MetalRenderer.hpp/.mm          # Objective-C++ Lyra API adapter and Cocoa bridge
 MetalRenderer.swift            # Swift Metal renderer and GPU command encoding
@@ -159,6 +185,7 @@ tests/TextAtlasTest.cpp        # CPU-side glyph atlas smoke test
 tests/AnimationTest.cpp        # preset and repeat-count tests
 tests/MouseDispatchTest.cpp    # topmost click dispatch test
 tests/ViewLayoutTest.cpp       # view overlap, layout, and component management
+tests/TextBoxTest.cpp          # text-box value, focus, and outline smoke test
 ```
 
 ## Version metadata
@@ -238,6 +265,18 @@ The Metal widget/text blur and AppKit desktop backdrop are independent effects.
 ./run.sh
 ```
 
+Visual launch examples:
+
+```bash
+./run.sh --textboxes
+./run-macos-blur.sh --textboxes
+```
+
+`--textboxes` shows two interactive text-box examples. `--blur-demo` highlights
+the existing translucent rectangle and text backdrop-blur showcase. The macOS
+blur launcher enables `--blur-demo` automatically and forwards the text-box
+option when supplied.
+
 On macOS, `run.sh` configures and builds the Metal backend in `build-metal`,
 then launches it. On other platforms it launches `build/x19`.
 
@@ -277,6 +316,7 @@ nothing. The animated blue rectangle uses the repeating Bezier preset.
 | Optional in-app Gaussian backdrop blur for rectangles and text | ✅ Implemented |
 | Optional macOS system window backdrop blur | ✅ Implemented (opt-in build) |
 | Horizontal / vertical views with collision-safe layout | ✅ Implemented (Phase 6) |
+| Text boxes with keyboard input and live value | ✅ Implemented (Phase 7) |
 | Borders / advanced styling | ⏳ Deferred |
 | PNG/JPEG decoding | ⏳ Deferred (PPM P6 only) |
 | Multi-window / multithreading | ⏳ Deferred |
