@@ -8,6 +8,8 @@
 #include <string>
 #include <array>
 #include <chrono>
+#include <cstdint>
+#include <utility>
 
 class Rectangle;
 class TextBox;
@@ -76,6 +78,8 @@ public:
     // existing rectangle/text batches.
     int addTextBox(TextBox* textBox);
     void removeTextBox(TextBox* textBox);
+    int addMenu(Menu* menu);
+    void removeMenu(Menu* menu);
     void dispatchChar(unsigned int codepoint);
     void dispatchKey(int key, int scancode, int action, int mods);
 
@@ -102,6 +106,7 @@ public:
     int framebufferHeight() const { return m_fbHeight; }
 
 private:
+    void syncMenus();
     // ---- creation ----
     bool createInstance();
     bool pickPhysicalDevice();
@@ -286,6 +291,14 @@ private:
     // rectangles: non-owning pointers; order = draw order (last = topmost)
     std::vector<Rectangle*> m_rectangles;
     std::vector<TextBox*> m_textBoxes;
+    std::vector<Menu*> m_menus;
+    struct MenuSnapshot {
+        Menu* menu = nullptr;
+        std::uint64_t revision = 0;
+        std::vector<Rectangle*> rectangles;
+        std::vector<TextLabel*> labels;
+    };
+    std::vector<MenuSnapshot> m_menuSnapshots;
     static constexpr size_t MAX_RECTANGLES = 64;
 
     // texture manager (renderer-owned)

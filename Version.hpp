@@ -4,7 +4,7 @@
 // project version; the executable uses the string fields for display/reporting.
 #define LYRA_VERSION_MAJOR 100
 #define LYRA_VERSION_MINOR 1
-#define LYRA_VERSION_PATCH 3
+#define LYRA_VERSION_PATCH 4
 #define LYRA_VERSION_CODENAME "Cloudsdale"
 #define LYRA_PROJECT_NAME "Lyra"
 

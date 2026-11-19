@@ -111,6 +111,8 @@ set(LYRA_COMMON_SOURCES
     Text.cpp
     TextBox.hpp
     TextBox.cpp
+    Menu.hpp
+    Menu.cpp
     Texture.hpp
     Texture.cpp
 )
@@ -244,6 +246,18 @@ if(BUILD_TESTING)
     )
     target_include_directories(textbox_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
     add_test(NAME textbox COMMAND textbox_test)
+
+    add_executable(menu_test
+        Menu.cpp
+        Menu.hpp
+        Rectangle.cpp
+        Text.cpp
+        Animation.cpp
+        tests/MenuTest.cpp
+    )
+    target_include_directories(menu_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_link_libraries(menu_test PRIVATE Freetype::Freetype)
+    add_test(NAME menu COMMAND menu_test)
 
     add_executable(view_layout_test
         Animation.cpp

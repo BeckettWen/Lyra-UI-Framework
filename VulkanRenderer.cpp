@@ -2,6 +2,7 @@
 #include "Texture.hpp"
 #include "Rectangle.hpp"
 #include "TextBox.hpp"
+#include "Menu.hpp"
 #include "Version.hpp"
 
 #include <cstring>
@@ -2366,6 +2367,7 @@ bool VulkanRenderer::drawFrame() {
     m_lastFrameTime = frameTime;
     deltaSeconds = std::clamp(deltaSeconds, 0.0f, 0.1f);
     updateAnimations(deltaSeconds);
+    syncMenus();
     if (detectBatchArrayModification()) {
         buildBatches();
         m_batchesDirty = false;
@@ -2433,6 +2435,60 @@ void VulkanRenderer::removeText(TextLabel* text) {
     m_textLabels.erase(
         std::remove(m_textLabels.begin(), m_textLabels.end(), text),
         m_textLabels.end());
+}
+
+int VulkanRenderer::addMenu(Menu* menu) {
+    if (!menu) return -1;
+    menu->refresh();
+    m_menus.push_back(menu);
+    MenuSnapshot snapshot;
+    snapshot.menu = menu;
+    snapshot.revision = menu->revision();
+    for (Menu::Item& item : menu->items()) {
+        snapshot.rectangles.push_back(&item.background);
+        snapshot.labels.push_back(&item.label);
+        addRectangle(&item.background);
+        addText(&item.label);
+    }
+    m_menuSnapshots.push_back(std::move(snapshot));
+    return static_cast<int>(m_menus.size()) - 1;
+}
+
+void VulkanRenderer::removeMenu(Menu* menu) {
+    if (!menu) return;
+    m_menus.erase(
+        std::remove(m_menus.begin(), m_menus.end(), menu),
+        m_menus.end());
+    auto snapshot = std::find_if(m_menuSnapshots.begin(), m_menuSnapshots.end(),
+        [menu](const MenuSnapshot& item) { return item.menu == menu; });
+    if (snapshot != m_menuSnapshots.end()) {
+        for (Rectangle* rectangle : snapshot->rectangles)
+            removeRectangle(rectangle);
+        for (TextLabel* label : snapshot->labels)
+            removeText(label);
+        m_menuSnapshots.erase(snapshot);
+    }
+}
+
+void VulkanRenderer::syncMenus() {
+    for (MenuSnapshot& snapshot : m_menuSnapshots) {
+        if (!snapshot.menu ||
+            snapshot.revision == snapshot.menu->revision())
+            continue;
+        for (Rectangle* rectangle : snapshot.rectangles)
+            removeRectangle(rectangle);
+        for (TextLabel* label : snapshot.labels)
+            removeText(label);
+        snapshot.rectangles.clear();
+        snapshot.labels.clear();
+        snapshot.revision = snapshot.menu->revision();
+        for (Menu::Item& item : snapshot.menu->items()) {
+            snapshot.rectangles.push_back(&item.background);
+            snapshot.labels.push_back(&item.label);
+            addRectangle(&item.background);
+            addText(&item.label);
+        }
+    }
 }
 
 int VulkanRenderer::addTextBox(TextBox* textBox) {

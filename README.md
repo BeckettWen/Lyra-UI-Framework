@@ -147,6 +147,13 @@ window.setKeyCallback([&renderer](int key, int scancode,
 });
 ```
 
+### Menu (Phase 8)
+- `Menu` creates a scalable vertical list of text-only menu items.
+- Each item has a full-row rectangle and an independent `onClick` callback.
+- Items support dynamic add, remove, text, callback, enable, and visibility updates.
+- `Renderer::addMenu()` and `Renderer::removeMenu()` register or unregister a
+  menu's rectangle and text components across the Metal and Vulkan backends.
+
 ## Repository layout
 
 ```
@@ -317,6 +324,7 @@ nothing. The animated blue rectangle uses the repeating Bezier preset.
 | Optional macOS system window backdrop blur | ✅ Implemented (opt-in build) |
 | Horizontal / vertical views with collision-safe layout | ✅ Implemented (Phase 6) |
 | Text boxes with keyboard input and live value | ✅ Implemented (Phase 7) |
+| Vertical text-only menus with per-item callbacks | ✅ Implemented (Phase 8) |
 | Borders / advanced styling | ⏳ Deferred |
 | PNG/JPEG decoding | ⏳ Deferred (PPM P6 only) |
 | Multi-window / multithreading | ⏳ Deferred |

@@ -17,6 +17,7 @@
 #include "Text.hpp"
 #include "TextBox.hpp"
 #include "View.hpp"
+#include "Menu.hpp"
 
 #include <iostream>
 #include <memory>
@@ -205,6 +206,18 @@ int main(int argc, char** argv) {
             renderer.addRectangle(&horizontalViewSecond);
         }
     }
+
+    Menu demoMenu(40.0f, 470.0f, 170.0f, 42.0f);
+    demoMenu.addItem("New", []() {
+        std::cout << "menu: New\n";
+    });
+    demoMenu.addItem("Open", []() {
+        std::cout << "menu: Open\n";
+    });
+    demoMenu.addItem("Save", []() {
+        std::cout << "menu: Save\n";
+    });
+    renderer.addMenu(&demoMenu);
 
     // The renderer stores non-owning pointers; rects must outlive renderer.
     for (auto& r : rects)

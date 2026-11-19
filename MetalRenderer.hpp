@@ -7,10 +7,14 @@
 #include "Texture.hpp"
 
 #include <chrono>
+#include <cstdint>
+#include <utility>
+#include <vector>
 #include <vector>
 
 class Rectangle;
 class TextBox;
+class Menu;
 
 // macOS renderer API adapter. Its Objective-C++ implementation bridges the
 // shared Lyra widget/input model to the Swift/Metal rendering core.
@@ -31,6 +35,8 @@ public:
     void removeText(TextLabel* text);
     int addTextBox(TextBox* textBox);
     void removeTextBox(TextBox* textBox);
+    int addMenu(Menu* menu);
+    void removeMenu(Menu* menu);
     void dispatchChar(unsigned int codepoint);
     void dispatchKey(int key, int scancode, int action, int mods);
     void dispatchMouseButton(int button, int action, int mods,
@@ -46,6 +52,7 @@ public:
 private:
     void updateAnimations(float deltaSeconds);
     void buildTextBatch();
+    void syncMenus();
 
     struct TextDraw {
         uint32_t firstIndex = 0;
@@ -62,6 +69,14 @@ private:
     std::vector<TextureRecord> m_textures;
     std::vector<Rectangle*> m_rectangles;
     std::vector<TextBox*> m_textBoxes;
+    std::vector<Menu*> m_menus;
+    struct MenuSnapshot {
+        Menu* menu = nullptr;
+        std::uint64_t revision = 0;
+        std::vector<Rectangle*> rectangles;
+        std::vector<TextLabel*> labels;
+    };
+    std::vector<MenuSnapshot> m_menuSnapshots;
     std::vector<TextLabel*> m_textLabels;
     FontAtlas m_fontAtlas;
     std::vector<float> m_rectangleVertices;

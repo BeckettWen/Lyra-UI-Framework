@@ -3,6 +3,7 @@
 #include <GLFW/glfw3native.h>
 
 #include "MetalRenderer.hpp"
+#include "Menu.hpp"
 #include "Rectangle.hpp"
 #include "TextBox.hpp"
 
@@ -222,6 +223,59 @@ void MetalRenderer::removeTextBox(TextBox* textBox) {
         m_textBoxes.end());
 }
 
+int MetalRenderer::addMenu(Menu* menu) {
+    if (!menu) return -1;
+    menu->refresh();
+    m_menus.push_back(menu);
+    MenuSnapshot snapshot;
+    snapshot.menu = menu;
+    snapshot.revision = menu->revision();
+    for (Menu::Item& item : menu->items()) {
+        snapshot.rectangles.push_back(&item.background);
+        snapshot.labels.push_back(&item.label);
+        addRectangle(&item.background);
+        addText(&item.label);
+    }
+    m_menuSnapshots.push_back(std::move(snapshot));
+    return static_cast<int>(m_menus.size()) - 1;
+}
+
+void MetalRenderer::removeMenu(Menu* menu) {
+    if (!menu) return;
+    m_menus.erase(
+        std::remove(m_menus.begin(), m_menus.end(), menu),
+        m_menus.end());
+    auto snapshot = std::find_if(m_menuSnapshots.begin(), m_menuSnapshots.end(),
+        [menu](const MenuSnapshot& item) { return item.menu == menu; });
+    if (snapshot != m_menuSnapshots.end()) {
+        for (Rectangle* rectangle : snapshot->rectangles)
+            removeRectangle(rectangle);
+        for (TextLabel* label : snapshot->labels)
+            removeText(label);
+        m_menuSnapshots.erase(snapshot);
+    }
+}
+
+void MetalRenderer::syncMenus() {
+    for (MenuSnapshot& snapshot : m_menuSnapshots) {
+        if (snapshot.menu && snapshot.revision == snapshot.menu->revision())
+            continue;
+        for (Rectangle* rectangle : snapshot.rectangles)
+            removeRectangle(rectangle);
+        for (TextLabel* label : snapshot.labels)
+            removeText(label);
+        snapshot.rectangles.clear();
+        snapshot.labels.clear();
+        snapshot.revision = snapshot.menu->revision();
+        for (Menu::Item& item : snapshot.menu->items()) {
+            snapshot.rectangles.push_back(&item.background);
+            snapshot.labels.push_back(&item.label);
+            addRectangle(&item.background);
+            addText(&item.label);
+        }
+    }
+}
+
 void MetalRenderer::dispatchChar(unsigned int codepoint) {
     for (TextBox* textBox : m_textBoxes) {
         if (textBox && textBox->focused()) {
@@ -382,6 +436,7 @@ bool MetalRenderer::drawFrame() {
         deltaSeconds = std::chrono::duration<float>(now - m_lastFrameTime).count();
     m_lastFrameTime = now;
     updateAnimations(std::clamp(deltaSeconds, 0.0f, 0.1f));
+    syncMenus();
     buildTextBatch();
 
     m_rectangleVertices.clear();

@@ -12,6 +12,7 @@
 //   - ViewSpace     : non-overlapping horizontal/vertical component containers
 //   - TextLabel      : baseline-positioned label rendered from the dedicated
 //                     FreeType glyph texture array; optional backdrop blur
+//   - Menu          : scalable vertical text-row menu with click callbacks
 //
 // Include the implementation headers directly. This header is kept as the
 // project's API entry point for compatibility with the original layout.
@@ -22,3 +23,4 @@
 #include "View.hpp"
 #include "Renderer.hpp"
 #include "TextBox.hpp"
+#include "Menu.hpp"
