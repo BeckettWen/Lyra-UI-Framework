@@ -27,6 +27,10 @@ int main() {
     assert(!menu.items()[0].background.enabled);
     assert(menu.setItemVisible(0, false));
     assert(!menu.items()[0].background.visible);
+    menu.setLineSpacing(12.0f);
+    assert(menu.getLineSpacing() == 12.0f);
+    assert(menu.items()[0].spacingBelow.height == 12.0f);
+    assert(menu.items()[0].spacingBelow.y == 74.0f);
 
     menu.clear();
     assert(menu.itemCount() == 0);

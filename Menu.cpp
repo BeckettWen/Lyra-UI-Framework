@@ -1,5 +1,7 @@
 #include "Menu.hpp"
 
+#include <algorithm>
+#include <cmath>
 #include <utility>
 
 Menu::Menu(float menuX, float menuY, float menuWidth, float menuRowHeight)
@@ -53,6 +55,13 @@ bool Menu::setItemVisible(std::size_t index, bool visible) {
     return true;
 }
 
+void Menu::setLineSpacing(float spacing) {
+    lineSpacing = std::isfinite(spacing)
+        ? std::max(0.0f, spacing)
+        : 0.0f;
+    refresh();
+}
+
 void Menu::clear() {
     m_items.clear();
     refresh();
@@ -62,7 +71,8 @@ void Menu::refresh() {
     ++m_revision;
     for (std::size_t index = 0; index < m_items.size(); ++index) {
         Item& item = m_items[index];
-        const float itemY = y + static_cast<float>(index) * rowHeight;
+        const float itemY =
+            y + static_cast<float>(index) * (rowHeight + lineSpacing);
 
         item.background = Rectangle(
             x, itemY, width, rowHeight, backgroundColor);
@@ -77,6 +87,17 @@ void Menu::refresh() {
                 current.onClick();
             }
         };
+
+        item.spacingBelow = Rectangle(
+            x,
+            itemY + rowHeight,
+            width,
+            lineSpacing,
+            backgroundColor);
+        item.spacingBelow.enabled = false;
+        item.spacingBelow.visible =
+            visible && item.visible && lineSpacing > 0.0f;
+        item.spacingBelow.textureLayer = -1;
 
         item.label = TextLabel{
             item.text,

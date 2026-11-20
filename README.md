@@ -151,6 +151,8 @@ window.setKeyCallback([&renderer](int key, int scancode,
 - `Menu` creates a scalable vertical list of text-only menu items.
 - Each item has a full-row rectangle and an independent `onClick` callback.
 - Items support dynamic add, remove, text, callback, enable, and visibility updates.
+- `setLineSpacing(float)` adjusts vertical gaps between rows. Each gap is
+  registered in the existing rectangle render array as a solid spacer.
 - `Renderer::addMenu()` and `Renderer::removeMenu()` register or unregister a
   menu's rectangle and text components across the Metal and Vulkan backends.
 

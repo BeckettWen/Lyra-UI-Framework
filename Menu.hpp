@@ -23,6 +23,7 @@ public:
         bool visible = true;
 
         Rectangle background;
+        Rectangle spacingBelow;
         TextLabel label;
     };
 
@@ -32,6 +33,7 @@ public:
     float y = 0.0f;
     float width = 200.0f;
     float rowHeight = 40.0f;
+    float lineSpacing = 0.0f;
     float textScale = 0.32f;
     float textPadding = 10.0f;
     std::array<float, 4> backgroundColor = {0.18f, 0.22f, 0.28f, 1.0f};
@@ -47,6 +49,8 @@ public:
                          std::function<void()> onClick);
     bool setItemEnabled(std::size_t index, bool enabled);
     bool setItemVisible(std::size_t index, bool visible);
+    void setLineSpacing(float spacing);
+    float getLineSpacing() const { return lineSpacing; }
     void clear();
     void refresh();
     std::uint64_t revision() const { return m_revision; }

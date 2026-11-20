@@ -234,6 +234,10 @@ int MetalRenderer::addMenu(Menu* menu) {
         snapshot.rectangles.push_back(&item.background);
         snapshot.labels.push_back(&item.label);
         addRectangle(&item.background);
+        if (menu->getLineSpacing() > 0.0f) {
+            snapshot.rectangles.push_back(&item.spacingBelow);
+            addRectangle(&item.spacingBelow);
+        }
         addText(&item.label);
     }
     m_menuSnapshots.push_back(std::move(snapshot));
@@ -271,6 +275,10 @@ void MetalRenderer::syncMenus() {
             snapshot.rectangles.push_back(&item.background);
             snapshot.labels.push_back(&item.label);
             addRectangle(&item.background);
+            if (snapshot.menu->getLineSpacing() > 0.0f) {
+                snapshot.rectangles.push_back(&item.spacingBelow);
+                addRectangle(&item.spacingBelow);
+            }
             addText(&item.label);
         }
     }

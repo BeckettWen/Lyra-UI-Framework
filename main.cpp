@@ -208,6 +208,7 @@ int main(int argc, char** argv) {
     }
 
     Menu demoMenu(40.0f, 470.0f, 170.0f, 42.0f);
+    demoMenu.setLineSpacing(4.0f);
     demoMenu.addItem("New", []() {
         std::cout << "menu: New\n";
     });
