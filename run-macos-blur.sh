@@ -24,6 +24,15 @@ cmake -G Xcode -S "$PROJECT_DIR" -B "$BUILD_DIR" \
     -DLYRA_ENABLE_MACOS_WINDOW_BLUR=ON
 cmake --build "$BUILD_DIR" --config Debug --target x19 -- -quiet
 
+EXECUTABLE="$BUILD_DIR/Debug/x19"
+if [ ! -x "$EXECUTABLE" ]; then
+    EXECUTABLE=$(find "$BUILD_DIR" -type f -path '*/Debug/x19' -perm -111 -print -quit)
+fi
+if [ -z "${EXECUTABLE:-}" ] || [ ! -x "$EXECUTABLE" ]; then
+    echo "Build succeeded, but the x19 executable could not be found." >&2
+    exit 1
+fi
+
 echo "Launching macOS backdrop test. Metal blurs Lyra widget backdrops; AppKit blurs the desktop behind the window."
 echo "If system blur is supported, content behind the window should show through transparent areas."
-exec "$BUILD_DIR/Debug/x19" --blur-demo "$@"
+exec "$EXECUTABLE" --blur-demo "$@"

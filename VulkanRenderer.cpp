@@ -1804,6 +1804,10 @@ void VulkanRenderer::updateAnimations(float deltaSeconds) {
         if (rectangle && rectangle->advanceAnimation(deltaSeconds))
             m_batchesDirty = true;
     }
+    for (Menu* menu : m_menus) {
+        if (menu && menu->advanceAnimation(deltaSeconds))
+            m_batchesDirty = true;
+    }
 }
 
 void VulkanRenderer::buildTextBatch() {

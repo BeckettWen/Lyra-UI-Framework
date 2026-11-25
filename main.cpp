@@ -89,125 +89,7 @@ int main(int argc, char** argv) {
             renderer.dispatchKey(key, scancode, action, mods);
         });
 
-    // --- Load textures from project assets (PPM P6) ---
-    // These are genuinely loaded at runtime via the PPM loader, not baked
-    // into vertex colors.
-    TextureRecord texRed = loadPPM("Assets/checkerboard.ppm");
-    TextureRecord texGrad = loadPPM("Assets/gradient.ppm");
-
-    int layerRed = -1;
-    int layerGrad = -1;
-
-    if (texRed.valid()) {
-        layerRed = renderer.addTexture(std::move(texRed));
-        std::cout << "Demo: checkerboard texture -> layer " << layerRed << "\n";
-    } else {
-        std::cerr << "Demo: failed to load checkerboard.ppm\n";
-    }
-
-    if (texGrad.valid()) {
-        layerGrad = renderer.addTexture(std::move(texGrad));
-        std::cout << "Demo: gradient texture -> layer " << layerGrad << "\n";
-    } else {
-        std::cerr << "Demo: failed to load gradient.ppm\n";
-    }
-
-    // Upload textures to the selected platform renderer before drawing.
-    if (!renderer.uploadTextures()) {
-        std::cerr << "Demo: failed to upload textures to the renderer\n";
-        renderer.destroy();
-        glfwTerminate();
-        return 1;
-    }
-
-    // --- Rectangles (screen/logical coords, top-left origin) ---
-    // Overlap rule: latest-added (topmost) wins clicks.
-    std::vector<Rectangle> rects;
-    rects.reserve(5);
-
-    // Solid blue rectangle (no texture, layer -1), in the upper-left demo zone.
-    rects.emplace_back(50.0f, 150.0f, 160.0f, 100.0f,
-                       std::array<float, 4>{0.2f, 0.45f, 1.0f, 1.0f});
-    rects.back().textureLayer = -1;
-    rects.back().onClick = []() {
-        std::cout << "click: solid blue rectangle\n";
-    };
-
-    // Blue-tinted checkerboard rectangle (layer 0).
-    rects.emplace_back(280.0f, 150.0f, 180.0f, 140.0f,
-                       std::array<float, 4>{0.45f, 0.7f, 1.0f, 1.0f});
-    rects.back().textureLayer = layerRed;
-    rects.back().onClick = []() {
-        std::cout << "click: checkerboard rectangle\n";
-    };
-
-    // Shaded gradient rectangle (layer 1), in its own lower-right zone.
-    rects.emplace_back(520.0f, 300.0f, 220.0f, 170.0f,
-                       std::array<float, 4>{0.5f, 0.72f, 1.0f, 0.9f});
-    rects.back().textureLayer = layerGrad;
-    rects.back().onClick = []() {
-        std::cout << "click: shaded gradient rectangle\n";
-    };
-
-    // Solid blue rectangle (no texture), reserved as the animation zone.
-    rects.emplace_back(50.0f, 300.0f, 150.0f, 130.0f,
-                       std::array<float, 4>{0.2f, 0.45f, 1.0f, 1.0f});
-    rects.back().textureLayer = -1;
-    rects.back().onClick = []() {
-        std::cout << "click: animated blue rectangle\n";
-    };
-
-    // Translucent blue checkerboard glass over the first checkerboard. The
-    // backdrop is blurred within this component's bounds; the checker texture
-    // itself remains sharp.
-    rects.emplace_back(340.0f, 180.0f, 160.0f, 120.0f,
-                       std::array<float, 4>{0.2f, 0.45f, 1.0f, 0.78f});
-    rects.back().textureLayer = layerRed;
-    rects.back().backdropBlurEnabled = true;
-    rects.back().backdropBlurRadius = 12.0f;
-    rects.back().onClick = []() {
-        std::cout << "click: tinted checkerboard rectangle\n";
-    };
-
-    // The blue rectangle follows a cubic Bezier path confined to the
-    // lower-left zone (repeatCount 0 = forever).
-    if (!rects[3].animateBezierTo(50.0f, 430.0f,
-                                  80.0f, 300.0f,
-                                  80.0f, 430.0f,
-                                  3.0f, 0))
-        std::cerr << "Demo: failed to start Bezier rectangle animation\n";
-
-    ViewSpace viewSpace;
-    Rectangle verticalViewRectangle(
-        0.0f, 0.0f, 180.0f, 55.0f, {0.25f, 0.55f, 0.85f, 1.0f});
-    TextLabel verticalViewLabel{"VIEW", 0.0f, 0.0f, 0.5f,
-                                {1.0f, 1.0f, 1.0f, 1.0f}};
-    Rectangle horizontalViewFirst(
-        0.0f, 0.0f, 160.0f, 55.0f, {0.35f, 0.65f, 0.95f, 1.0f});
-    Rectangle horizontalViewSecond(
-        0.0f, 0.0f, 220.0f, 55.0f, {0.25f, 0.5f, 0.8f, 1.0f});
-
-    auto verticalView = viewSpace.createVerticalView(520.0f, 90.0f, 220.0f, 190.0f);
-    auto horizontalView =
-        viewSpace.createHorizontalView(230.0f, 500.0f, 520.0f, 75.0f);
-    if (!verticalView || !horizontalView) {
-        std::cerr << "Demo: failed to create non-overlapping views\n";
-    } else {
-        const auto rectangleAdded = (*verticalView)->add(verticalViewRectangle);
-        const auto labelAdded = (*verticalView)->add(verticalViewLabel, 180.0f, 50.0f);
-        const auto firstAdded = (*horizontalView)->add(horizontalViewFirst);
-        const auto secondAdded = (*horizontalView)->add(horizontalViewSecond);
-        if (!rectangleAdded || !labelAdded || !firstAdded || !secondAdded) {
-            std::cerr << "Demo: a view component did not fit its container\n";
-        } else {
-            renderer.addRectangle(&verticalViewRectangle);
-            renderer.addText(&verticalViewLabel);
-            renderer.addRectangle(&horizontalViewFirst);
-            renderer.addRectangle(&horizontalViewSecond);
-        }
-    }
-
-    Menu demoMenu(40.0f, 470.0f, 170.0f, 42.0f);
+    Menu demoMenu(315.0f, 180.0f, 170.0f, 42.0f);
     demoMenu.setLineSpacing(4.0f);
     demoMenu.addItem("New", []() {
         std::cout << "menu: New\n";
@@ -220,40 +102,20 @@ int main(int argc, char** argv) {
     });
     renderer.addMenu(&demoMenu);
 
-    // The renderer stores non-owning pointers; rects must outlive renderer.
-    for (auto& r : rects)
-        renderer.addRectangle(&r);
+    if (!demoMenu.animateBezierTo(
+            315.0f, 330.0f,
+            500.0f, 150.0f,
+            500.0f, 360.0f,
+            4.0f, 0)) {
+        std::cerr << "Demo: failed to start menu animation\n";
+    }
 
-    TextBox textBox(280.0f, 55.0f, 260.0f, 44.0f);
-    TextBox searchBox(280.0f, 105.0f, 260.0f, 44.0f);
-    textBox.setText("");
-    textBox.setMaxCharacters(64);
-    searchBox.setText("Type here");
-    searchBox.setMaxCharacters(64);
-    renderer.addTextBox(&textBox);
-    renderer.addTextBox(&searchBox);
-
-    // Text uses an independent glyph texture array, descriptor set, pipeline,
-    // and vertex/index batch. Coordinates are top-left-origin; y is the font
-    // baseline in logical window pixels.
-    std::vector<TextLabel> labels;
-    labels.reserve(6);
-    labels.push_back({"Cloudsdale", 50.0f, 95.0f, 0.8f,
-                      {1.0f, 1.0f, 1.0f, 1.0f}, true});
-    labels.push_back({"LYRA", 65.0f, 215.0f, 0.42f,
-                      {1.0f, 1.0f, 1.0f, 1.0f}, true});
-    labels.push_back({"CHECKER", 295.0f, 225.0f, 0.36f,
-                      {1.0f, 1.0f, 1.0f, 1.0f}, true});
-    labels.back().backdropBlurEnabled = true;
-    labels.back().backdropBlurRadius = 5.0f;
-    labels.push_back({"SHADED", 545.0f, 390.0f, 0.5f,
-                      {1.0f, 1.0f, 1.0f, 1.0f}, true});
-    labels.push_back({"TEXT", 180.0f, 88.0f, 0.28f,
-                      {0.85f, 0.85f, 0.85f, 1.0f}, true});
-    labels.push_back({"SEARCH", 160.0f, 138.0f, 0.28f,
-                      {0.85f, 0.85f, 0.85f, 1.0f}, true});
-    for (auto& label : labels)
-        renderer.addText(&label);
+    if (!renderer.uploadTextures()) {
+        std::cerr << "Demo: failed to initialize the renderer texture state\n";
+        renderer.destroy();
+        glfwTerminate();
+        return 1;
+    }
 
     while (!window.shouldClose()) {
         window.pollEvents();

@@ -156,6 +156,14 @@ window.setKeyCallback([&renderer](int key, int scancode,
 - `Renderer::addMenu()` and `Renderer::removeMenu()` register or unregister a
   menu's rectangle and text components across the Metal and Vulkan backends.
 
+### Menu animation (Phase 9)
+- `Menu::animateTo()` and `Menu::animateBezierTo()` animate the menu origin
+  and all owned item backgrounds, spacers, and text labels.
+- Menu animations use the existing linear and cubic Bezier `Animation`
+  library, including repeat counts and cancellation.
+- `advanceAnimation()` moves every menu component by the animation frame
+  result; registered renderers synchronize it through `syncMenus()`.
+
 ## Repository layout
 
 ```

@@ -87,6 +87,7 @@ private final class LyraMetalRenderer {
         self.commandQueue = queue
         self.inAppBlurEnabled = inAppBlurEnabled
 
+        // mark: Window blur effect adjustment
         let contentView = window.contentView ?? NSView(frame: .zero)
         if window.contentView == nil { window.contentView = contentView }
         let effect: NSVisualEffectView?
@@ -100,9 +101,10 @@ private final class LyraMetalRenderer {
             let effectView = NSVisualEffectView(frame: contentView.bounds)
             effectView.identifier = NSUserInterfaceItemIdentifier("LyraMetalWindowBackdrop")
             effectView.autoresizingMask = [.width, .height]
-            effectView.material = .underWindowBackground
+            effectView.material = .hudWindow
             effectView.blendingMode = .behindWindow
             effectView.state = .active
+            effectView.alphaValue = 1.3
             contentView.addSubview(effectView, positioned: .below, relativeTo: nil)
             window.isOpaque = false
             window.backgroundColor = .clear

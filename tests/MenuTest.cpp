@@ -35,6 +35,19 @@ int main() {
     menu.clear();
     assert(menu.itemCount() == 0);
 
+    menu.addItem("Animated");
+    assert(menu.animateTo(100.0f, 150.0f, 1.0f));
+    assert(menu.animationActive());
+    assert(menu.advanceAnimation(0.25f));
+    assert(menu.items()[0].background.x > 20.0f);
+    assert(menu.items()[0].label.x > 20.0f);
+    assert(menu.advanceAnimation(1.0f));
+    assert(!menu.animationActive());
+    assert(menu.x == 100.0f);
+    assert(menu.y == 150.0f);
+    assert(menu.items()[0].background.x == 100.0f);
+    assert(menu.items()[0].label.x == 110.0f);
+
     std::cout << "Menu item layout and callbacks passed\n";
     return 0;
 }

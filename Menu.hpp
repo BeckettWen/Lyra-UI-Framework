@@ -2,11 +2,13 @@
 
 #include "Rectangle.hpp"
 #include "Text.hpp"
+#include "Animation.hpp"
 
 #include <cstddef>
 #include <cstdint>
 #include <deque>
 #include <functional>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -55,6 +57,21 @@ public:
     void refresh();
     std::uint64_t revision() const { return m_revision; }
 
+    // Animates the menu origin and every visual component owned by the menu.
+    // The API and repeat semantics match Rectangle position animation.
+    bool animateTo(float targetX, float targetY, float durationSeconds,
+                   uint32_t repeatCount = 1);
+    bool animateBezierTo(float targetX, float targetY,
+                         float control1X, float control1Y,
+                         float control2X, float control2Y,
+                         float durationSeconds, uint32_t repeatCount = 1);
+    void setAnimationRepeatCount(uint32_t repeatCount);
+    void cancelAnimation();
+    bool advanceAnimation(float deltaSeconds);
+    bool animationActive() const;
+    bool advance(float deltaSeconds) { return advanceAnimation(deltaSeconds); }
+    bool active() const { return animationActive(); }
+
     std::size_t itemCount() const { return m_items.size(); }
     const std::deque<Item>& items() const { return m_items; }
     std::deque<Item>& items() { return m_items; }
@@ -62,4 +79,5 @@ public:
 private:
     std::deque<Item> m_items;
     std::uint64_t m_revision = 1;
+    std::optional<Animation> m_positionAnimation;
 };

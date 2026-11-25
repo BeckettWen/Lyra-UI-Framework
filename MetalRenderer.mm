@@ -336,6 +336,8 @@ void MetalRenderer::dispatchMouseButton(int button, int action, int mods,
 void MetalRenderer::updateAnimations(float deltaSeconds) {
     for (Rectangle* rectangle : m_rectangles)
         if (rectangle) rectangle->advanceAnimation(deltaSeconds);
+    for (Menu* menu : m_menus)
+        if (menu) menu->advanceAnimation(deltaSeconds);
 }
 
 void MetalRenderer::buildTextBatch() {

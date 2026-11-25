@@ -109,3 +109,54 @@ void Menu::refresh() {
         };
     }
 }
+
+bool Menu::animateTo(float targetX, float targetY, float durationSeconds,
+                     uint32_t repeatCount) {
+    Animation animation = Animation::linear(
+        {x, y}, {targetX, targetY}, durationSeconds, repeatCount);
+    if (!animation.active()) return false;
+    m_positionAnimation = std::move(animation);
+    return true;
+}
+
+bool Menu::animateBezierTo(float targetX, float targetY,
+                           float control1X, float control1Y,
+                           float control2X, float control2Y,
+                           float durationSeconds, uint32_t repeatCount) {
+    Animation animation = Animation::bezier(
+        {x, y}, {control1X, control1Y}, {control2X, control2Y},
+        {targetX, targetY}, durationSeconds, repeatCount);
+    if (!animation.active()) return false;
+    m_positionAnimation = std::move(animation);
+    return true;
+}
+
+void Menu::setAnimationRepeatCount(uint32_t repeatCount) {
+    if (m_positionAnimation)
+        m_positionAnimation->setRepeatCount(repeatCount);
+}
+
+void Menu::cancelAnimation() {
+    m_positionAnimation.reset();
+}
+
+bool Menu::advanceAnimation(float deltaSeconds) {
+    if (!m_positionAnimation) return false;
+
+    const float oldX = x;
+    const float oldY = y;
+    AnimationPoint position{};
+    const bool stillActive =
+        m_positionAnimation->advance(deltaSeconds, position);
+    x = position.x;
+    y = position.y;
+    refresh();
+
+    if (!stillActive)
+        m_positionAnimation.reset();
+    return oldX != x || oldY != y;
+}
+
+bool Menu::animationActive() const {
+    return m_positionAnimation && m_positionAnimation->active();
+}
